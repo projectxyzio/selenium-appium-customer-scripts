@@ -16,7 +16,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 web_driver_url = None
 desired_cap = None
-slack_client = SlackClient('xoxb-7879369460-1040246122288-nhRB7fkKpU8TrORdkQgowL8v')
+
 
 class MyTestResult(unittest.TestResult):
     def addFailure(self, test, err):
@@ -65,6 +65,7 @@ class HealthUnitTest(unittest.TestCase):
             
 
         # self.driver = webdriver.Chrome()
+        
         self.driver = webdriver.Remote(command_executor=web_driver_url, desired_capabilities=desired_cap)
 
     def test_sign_in_powerBI(self):
@@ -98,7 +99,7 @@ class HealthUnitTest(unittest.TestCase):
         title = driver.find_element_by_class_name('widget-title').text
 
         # assert that the intro widget conatins 'Scott' in the title
-        self.assertIn("Scott", title)
+        self.assertIn("Scott is", title)
 
         #################################################
 
@@ -148,7 +149,9 @@ if __name__ == "__main__":
     parser.add_argument('--url',help="weburl for selenium server")
     parser.add_argument('--browser', help="browser for host device")
     parser.add_argument('--version', help="browser version for host device")
+    parser.add_argument('--slack', help="slack api key for integration")
     parser.add_argument('unittest_args', nargs='*')
     args = parser.parse_args()
     sys.argv[1:] = args.unittest_args
+    slack_client = SlackClient(args.slack)
     unittest.main(testRunner=unittest.TextTestRunner(resultclass=MyTestResult))
