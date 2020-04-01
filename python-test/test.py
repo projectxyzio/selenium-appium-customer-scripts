@@ -99,7 +99,7 @@ class HealthUnitTest(unittest.TestCase):
         title = driver.find_element_by_class_name('widget-title').text
 
         # assert that the intro widget conatins 'Scott' in the title
-        self.assertIn("Scott is", title)
+        self.assertIn("Scott", title)
 
         #################################################
 
@@ -111,7 +111,7 @@ class HealthUnitTest(unittest.TestCase):
         self.assertItemsEqual("https://app.powerbi.com/sharedwithme?noSignUpCheck=1", driver.current_url)
 
     def tearDown(self):
-        self.driver.close()
+        
         self.driver.quit()
 
 
