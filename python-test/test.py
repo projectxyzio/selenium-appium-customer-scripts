@@ -25,7 +25,7 @@ class HealthUnitTest(unittest.TestCase):
             devices = get_target_config(args.key)
             web_driver_url = devices["driver_url"].replace("{api_token}", args.key)
             desired_cap = devices["capabilities"]
-            desired_cap["headspin.capture"] = True
+            # desired_cap["headspin.capture"] = True
             print(devices["driver_url"].replace("{api_token}", args.key))
             print(devices["capabilities"])
         elif args.url and args.browser:
@@ -36,7 +36,7 @@ class HealthUnitTest(unittest.TestCase):
                     "height": 1080
                  },
 
-                 "headspin.capture": True
+                #  "headspin.capture": True
 
             }
 
