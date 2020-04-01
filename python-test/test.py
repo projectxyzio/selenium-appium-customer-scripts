@@ -11,11 +11,28 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-
+from slackclient import SlackClient
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 web_driver_url = None
 desired_cap = None
+slack_client = SlackClient('xoxb-7879369460-1040246122288-nhRB7fkKpU8TrORdkQgowL8v')
+
+class MyTestResult(unittest.TestResult):
+    def addFailure(self, test, err):
+        # here you can do what you want to do when a test case fails 
+        print('test failed!')
+        # call_slack_api(err)
+        super(MyTestResult, self).addFailure(test, err)
+        call_slack_api(err[1])
+
+    def addError(self, test, err):
+        # here you can do what you want to do when a test case raises an error
+        print("test errored")
+        
+        # call_slack_api(err)
+        super(MyTestResult, self).addError(test, err)
+        call_slack_api(err[1])
 
 
 class HealthUnitTest(unittest.TestCase):
@@ -25,7 +42,7 @@ class HealthUnitTest(unittest.TestCase):
             devices = get_target_config(args.key)
             web_driver_url = devices["driver_url"].replace("{api_token}", args.key)
             desired_cap = devices["capabilities"]
-            # desired_cap["headspin.capture"] = True
+            desired_cap["headspin.capture"] = True
             print(devices["driver_url"].replace("{api_token}", args.key))
             print(devices["capabilities"])
         elif args.url and args.browser:
@@ -36,8 +53,7 @@ class HealthUnitTest(unittest.TestCase):
                     "height": 1080
                  },
 
-                #  "headspin.capture": True
-
+                 "headspin.capture": True
             }
 
             desired_cap["browserName"] = args.browser
@@ -118,7 +134,13 @@ def get_target_config(api_token):
     target_appium_config = appium_configs[configs[index]]
     return target_appium_config
 
-
+def call_slack_api(e):
+    slack_client.api_call(
+        "chat.postMessage",
+        channel='C0115LHP5L4',
+        text='Test Failed: ```' + str(e) + "```"
+    )
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -129,4 +151,4 @@ if __name__ == "__main__":
     parser.add_argument('unittest_args', nargs='*')
     args = parser.parse_args()
     sys.argv[1:] = args.unittest_args
-    unittest.main()
+    unittest.main(testRunner=unittest.TextTestRunner(resultclass=MyTestResult))
