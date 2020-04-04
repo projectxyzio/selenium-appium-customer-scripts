@@ -44,16 +44,12 @@ def do_basic_signin(driver):
 
     time.sleep(2)
 
-    
     password = WebDriverWait(driver, 10).until(
         ec.presence_of_element_located((By.ID, "i0118")))
     password.send_keys("BriSugi12!")
     password.send_keys(Keys.RETURN)
 
     time.sleep(2)
-
-    WebDriverWait(driver, 10).until(
-        ec.presence_of_element_located((By.CLASS_NAME, "text-title")))
      
     button = WebDriverWait(driver, 10).until(
         ec.element_to_be_clickable((By.ID, "idSIButton9")))
