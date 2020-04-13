@@ -36,7 +36,7 @@ class HealthUnitTest(unittest.TestCase):
                     "height": 1080
                  },
 
-                #  "headspin.capture": True
+                "headspin.capture": True
 
             }
 
@@ -86,15 +86,19 @@ class HealthUnitTest(unittest.TestCase):
 
         #################################################
 
-        driver.find_element_by_xpath("//span[text()='Favorites']").click()
-        driver.find_element_by_xpath("//span[text()='Recent']").click()
-        driver.find_element_by_xpath("//span[text()='Apps']").click()
-        driver.find_element_by_xpath("//span[text()='Shared with me']").click()
-
+        # driver.find_element_by_xpath("//span[text()='Favorites']").click()
+        # driver.find_element_by_xpath("//span[text()='Recent']").click()
+        # driver.find_element_by_xpath("//span[text()='Apps']").click()
+        # driver.find_element_by_xpath("//span[text()='Shared with me']").click()
+        driver.find_element(By.CSS_SELECTOR, "nav-pane-expander:nth-child(2) nav-pane-button > button").click()
+        driver.find_element(By.CSS_SELECTOR, "nav-pane-expander:nth-child(3) span").click()
+        driver.find_element(By.CSS_SELECTOR, ".myApps span").click()
+        driver.find_element(By.CSS_SELECTOR, ".sharedWithMe span").click()
+        
         self.assertItemsEqual("https://app.powerbi.com/sharedwithme?noSignUpCheck=1", driver.current_url)
 
     def tearDown(self):
-        self.driver.close()
+        
         self.driver.quit()
 
 
