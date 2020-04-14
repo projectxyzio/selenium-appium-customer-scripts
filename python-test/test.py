@@ -1,4 +1,6 @@
 import urllib3
+import json
+import requests
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -16,7 +18,8 @@ def setup(web_driver_url):
             "height": 1080
         },
     }
-    desired_cap["browserName"] = 'chrome'
+    desired_cap["browserName"] = 'firefox'
+    desired_cap["headspin.capture"] = True
 
     driver = webdriver.Remote(command_executor=web_driver_url, desired_capabilities=desired_cap)
     return driver
@@ -30,6 +33,7 @@ def do_basic_signin(driver):
     # navigate to sign in page and click slign in button
     
     driver.get("https://powerbi.microsoft.com/en-us/landing/signin/")
+
     
 
     if "Power BI" not in driver.title:
@@ -85,7 +89,10 @@ def do_basic_signin(driver):
     if expect_url != driver.current_url:
         raise SeleniumTestException("Unexpected url '{}', expected '{}'".format(driver.current_url, expect_url))
     
+    session_id = driver.session_id
     driver.quit()
+    check_for_tls_exceptions(session_id)
+    
 
 def find_favorites_button(driver):
     try:
@@ -96,6 +103,17 @@ def find_favorites_button(driver):
         favorites_button = WebDriverWait(driver, 10).until(
             ec.element_to_be_clickable((By.XPATH, "//span[text()='Favorites']")))
     return favorites_button
+
+def check_for_tls_exceptions(session_id):
+    access_token = "f26664f6bfc64becac8f4c4819f4b5c2"
+    get_auto_config = "https://api-dev.headspin.io/v0/sessions/{}/tlsexceptions".format(session_id)
+    r = requests.get(get_auto_config, headers={'Authorization': 'Bearer {}'.format(access_token)})
+    selenium_config = json.loads(r.text)
+    if selenium_config:
+        raise SeleniumTestException("TLS Exceptions Found: '{}'".format(selenium_config))
+        
+
+
 
 
 if __name__ == "__main__":
