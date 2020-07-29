@@ -1,9 +1,12 @@
 import urllib3
+import json
+import requests
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
+from selenium.common import exceptions
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -15,7 +18,12 @@ def setup(web_driver_url):
             "height": 1080
         },
     }
+<<<<<<< HEAD
     desired_cap["browserName"] = 'MicrosoftEdge'
+=======
+    desired_cap["browserName"] = 'firefox'
+    desired_cap["headspin.capture"] = True
+>>>>>>> 9d5a9a7e1ce586514770f6a0ac7bc5761055238a
 
     driver = webdriver.Remote(command_executor=web_driver_url, desired_capabilities=desired_cap)
     return driver
@@ -27,7 +35,10 @@ def do_basic_signin(driver):
     from selenium.webdriver.support.ui import WebDriverWait
 
     # navigate to sign in page and click slign in button
+    
     driver.get("https://powerbi.microsoft.com/en-us/landing/signin/")
+
+    
 
     if "Power BI" not in driver.title:
         raise SeleniumTestException("Did not find 'Power BI' in the page title '{}'".format(driver.title))
@@ -69,17 +80,44 @@ def do_basic_signin(driver):
 
     #################################################
 
-    driver.find_element_by_xpath("//span[text()='Favorites']").click()
-    driver.find_element_by_xpath("//span[text()='Recent']").click()
-    driver.find_element_by_xpath("//span[text()='Apps']").click()
-    driver.find_element_by_xpath("//span[text()='Shared with me']").click()
+     # favorites
+    driver.find_element(By.CSS_SELECTOR, "nav-pane-expander:nth-child(2) nav-pane-button > button").click()
+    # recent
+    driver.find_element(By.CSS_SELECTOR, "nav-pane-expander:nth-child(3) span").click()
+    # apps
+    driver.find_element(By.CSS_SELECTOR, ".myApps span").click()
+    # shared with me
+    driver.find_element(By.CSS_SELECTOR, ".sharedWithMe span").click()
 
     expect_url = 'https://app.powerbi.com/sharedwithme?noSignUpCheck=1'
 
     if expect_url != driver.current_url:
         raise SeleniumTestException("Unexpected url '{}', expected '{}'".format(driver.current_url, expect_url))
     
+    session_id = driver.session_id
     driver.quit()
+    check_for_tls_exceptions(session_id)
+    
+
+def find_favorites_button(driver):
+    try:
+        favorites_button = WebDriverWait(driver, 10).until(
+            ec.element_to_be_clickable((By.CSS_SELECTOR, "nav-pane-expander:nth-child(2) nav-pane-button > button"))) 
+    except:
+        print("Exception Occurred")
+        favorites_button = WebDriverWait(driver, 10).until(
+            ec.element_to_be_clickable((By.XPATH, "//span[text()='Favorites']")))
+    return favorites_button
+
+def check_for_tls_exceptions(session_id):
+    access_token = "f26664f6bfc64becac8f4c4819f4b5c2"
+    get_auto_config = "https://api-dev.headspin.io/v0/sessions/{}/tlsexceptions".format(session_id)
+    r = requests.get(get_auto_config, headers={'Authorization': 'Bearer {}'.format(access_token)})
+    selenium_config = json.loads(r.text)
+    if selenium_config:
+        raise SeleniumTestException("TLS Exceptions Found: '{}'".format(selenium_config))
+        
+
 
 
 
@@ -87,3 +125,4 @@ if __name__ == "__main__":
     web_driver_url = "https://us-mv.headspin.io:9090/v0/1921da2bcf3f4f4ebfb50ab8ed1ca687/wd/hub"
     driver = setup(web_driver_url)
     do_basic_signin(driver)
+    
