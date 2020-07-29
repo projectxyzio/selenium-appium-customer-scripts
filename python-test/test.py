@@ -15,7 +15,7 @@ def setup(web_driver_url):
             "height": 1080
         },
     }
-    desired_cap["browserName"] = 'chrome'
+    desired_cap["browserName"] = 'MicrosoftEdge'
 
     driver = webdriver.Remote(command_executor=web_driver_url, desired_capabilities=desired_cap)
     return driver
@@ -46,7 +46,7 @@ def do_basic_signin(driver):
 
     password = WebDriverWait(driver, 10).until(
         ec.presence_of_element_located((By.ID, "i0118")))
-    password.send_keys("BriSugi12!")
+    password.send_keys("HspinTest12!")
     password.send_keys(Keys.RETURN)
 
     time.sleep(2)
@@ -55,6 +55,7 @@ def do_basic_signin(driver):
         ec.element_to_be_clickable((By.ID, "idSIButton9")))
 
     driver.execute_script("arguments[0].click();", button)
+    
     # button.click()
 
     WebDriverWait(driver, 20).until(
@@ -83,6 +84,6 @@ def do_basic_signin(driver):
 
 
 if __name__ == "__main__":
-    web_driver_url = "https://dev-us-la-0.headspin.io:9090/v0/f26664f6bfc64becac8f4c4819f4b5c2/wd/hub"
+    web_driver_url = "https://us-mv.headspin.io:9090/v0/1921da2bcf3f4f4ebfb50ab8ed1ca687/wd/hub"
     driver = setup(web_driver_url)
     do_basic_signin(driver)
